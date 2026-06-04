@@ -1,152 +1,207 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
-USERNAME = "ayesha"
-PASSWORD = "1234"
+# ── Data ──────────────────────────────────────────────────────────────────────
+USERS = {
+    "teacher": {"pass": "1234", "role": "teacher", "name": "Dr. Ayesha Khan"},
+    "student": {"pass": "1234", "role": "student", "name": "Ali Hassan"},
+}
 
-NAME     = "Ayesha Malik"
-STUDENT_ID = "STU-2401"
-COURSE   = "BS Computer Science"
-SEMESTER = "2nd Semester"
-EMAIL    = "ayesha@uni.edu.pk"
-PHONE    = "0300-1234567"
-CGPA     = "3.72"
-ATTENDANCE = "89%"
-FEE      = "Paid"
+STUDENTS = ["Ali Hassan", "Sara Malik", "Usman Tariq", "Hina Baig"]
+SUBJECTS  = ["HCI", "OOP", "DBMS", "Networks"]
 
-SUBJECTS = [
-    ("Programming Fundamentals", "85%", "A"),
-    ("Calculus",                 "78%", "B+"),
-    ("Physics",                  "91%", "A+"),
-    ("English",                  "80%", "A"),
-    ("Islamic Studies",          "95%", "A+"),
+MARKS = {
+    "Ali Hassan":  {"HCI": 85, "OOP": 78, "DBMS": 90, "Networks": 72},
+    "Sara Malik":  {"HCI": 70, "OOP": 65, "DBMS": 74, "Networks": 68},
+    "Usman Tariq": {"HCI": 91, "OOP": 88, "DBMS": 85, "Networks": 93},
+    "Hina Baig":   {"HCI": 60, "OOP": 55, "DBMS": 62, "Networks": 58},
+}
+
+NOTIFS = [
+    "📢  Mid-Term exams scheduled for next week.",
+    "✅  HCI project submissions are now open.",
+    "⚠️  Last date to register electives is 25 May.",
+    "📌  Campus closed on 23 March – Public Holiday.",
 ]
 
-BG      = "#1e1e2e"
-SURFACE = "#2a2a3e"
-PURPLE  = "#6c63ff"
-WHITE   = "#e8eaf6"
-GREY    = "#9090b0"
-GREEN   = "#00d4aa"
-RED     = "#ff6b6b"
-YELLOW  = "#ffb800"
+def grade(m):
+    for mn, g in [(90,"A+"),(80,"A"),(70,"B+"),(60,"B"),(50,"C"),(0,"F")]:
+        if m >= mn: return g
 
-window = tk.Tk()
-window.title("Student Portal")
-window.geometry("700x500")
-window.resizable(False, False)
-window.configure(bg=BG)
+def gpa(marks):
+    t = {"A+":4.0,"A":4.0,"B+":3.5,"B":3.0,"C":2.0,"F":0.0}
+    v = [t[grade(m)] for m in marks.values()]
+    return round(sum(v)/len(v), 2)
 
+# ── Colors / Fonts ────────────────────────────────────────────────────────────
+BG, SIDE, ACC = "#F0F4F8", "#1E3A5F", "#2E86AB"
+W, TD, MU     = "#FFFFFF", "#1A1A2E", "#7F8C9A"
+FB, FN        = ("Segoe UI",11,"bold"), ("Segoe UI",11)
+FH            = ("Segoe UI",15,"bold")
 
-def clear():
-    for w in window.winfo_children():
-        w.destroy()
+# ── App ───────────────────────────────────────────────────────────────────────
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("UniPortal")
+        self.geometry("860x560")
+        self.resizable(False, False)
+        self.login_screen()
 
+    def clear(self):
+        for w in self.winfo_children(): w.destroy()
 
-def show_login():
-    clear()
+    # LOGIN
+    def login_screen(self):
+        self.clear(); self.configure(bg=SIDE); self.geometry("380x420")
+        tk.Label(self, text="🎓 UniPortal", font=("Segoe UI",22,"bold"), bg=SIDE, fg=W).pack(pady=(50,4))
+        tk.Label(self, text="University Portal System", font=FN, bg=SIDE, fg="#A0BCD8").pack(pady=(0,28))
 
-    tk.Label(window, text="Student Portal", font=("Segoe UI", 24, "bold"),
-             fg=PURPLE, bg=BG).pack(pady=(70, 4))
+        box = tk.Frame(self, bg=W, padx=28, pady=28); box.pack(padx=36, fill="x")
+        tk.Label(box, text="Username", font=FB, bg=W, fg=TD).pack(anchor="w")
+        self.eu = ttk.Entry(box, font=FN); self.eu.pack(fill="x", pady=(2,10))
+        tk.Label(box, text="Password", font=FB, bg=W, fg=TD).pack(anchor="w")
+        self.ep = ttk.Entry(box, font=FN, show="●"); self.ep.pack(fill="x", pady=(2,18))
+        tk.Button(box, text="Login", font=FB, bg=ACC, fg=W, relief="flat",
+                  cursor="hand2", pady=7, command=self.login).pack(fill="x")
+        tk.Label(self, text="Hint: teacher/1234  or  student/1234",
+                 font=("Segoe UI",9), bg=SIDE, fg="#7FA8C8").pack(pady=14)
 
-    tk.Label(window, text="Sign in to continue", font=("Segoe UI", 11),
-             fg=GREY, bg=BG).pack()
-
-    box = tk.Frame(window, bg=SURFACE, padx=40, pady=30)
-    box.pack(pady=25)
-
-    tk.Label(box, text="Username", font=("Segoe UI", 10), fg=GREY, bg=SURFACE).pack(anchor="w")
-    user_entry = tk.Entry(box, font=("Segoe UI", 12), bg=BG, fg=WHITE,
-                          insertbackground=WHITE, relief="flat", width=28,
-                          highlightthickness=1, highlightbackground=GREY, highlightcolor=PURPLE)
-    user_entry.pack(ipady=6, pady=(2, 12))
-
-    tk.Label(box, text="Password", font=("Segoe UI", 10), fg=GREY, bg=SURFACE).pack(anchor="w")
-    pass_entry = tk.Entry(box, font=("Segoe UI", 12), bg=BG, fg=WHITE,
-                          insertbackground=WHITE, relief="flat", width=28, show="*",
-                          highlightthickness=1, highlightbackground=GREY, highlightcolor=PURPLE)
-    pass_entry.pack(ipady=6, pady=(2, 20))
-
-    def login():
-        if user_entry.get() == USERNAME and pass_entry.get() == PASSWORD:
-            show_portal()
+    def login(self):
+        u, p = self.eu.get().strip(), self.ep.get().strip()
+        if u in USERS and USERS[u]["pass"] == p:
+            self.user = USERS[u]; self.user["uname"] = u
+            self.geometry("860x560"); self.configure(bg=BG)
+            self.main_screen()
         else:
-            messagebox.showerror("Error", "Wrong username or password!\nHint: ayesha / 1234")
+            messagebox.showerror("Error", "Wrong username or password.")
 
-    tk.Button(box, text="Login", command=login, font=("Segoe UI", 12, "bold"),
-              bg=PURPLE, fg="white", relief="flat", width=20, pady=7, cursor="hand2").pack()
+    # MAIN SHELL
+    def main_screen(self):
+        self.clear()
+        top = tk.Frame(self, bg=ACC, height=46); top.pack(fill="x"); top.pack_propagate(False)
+        tk.Label(top, text="🎓  UniPortal", font=FB, bg=ACC, fg=W).pack(side="left", padx=16, pady=10)
+        tk.Label(top, text=self.user["name"], font=FN, bg=ACC, fg="#D0EAF8").pack(side="right", padx=8)
+        tk.Button(top, text="Logout", font=("Segoe UI",9), bg=SIDE, fg=W, relief="flat",
+                  cursor="hand2", padx=8, command=self.login_screen).pack(side="right", padx=6, pady=8)
 
-    tk.Label(window, text="username: ayesha     password: 1234",
-             font=("Segoe UI", 10), fg=GREY, bg=BG).pack()
+        body = tk.Frame(self, bg=BG); body.pack(fill="both", expand=True)
+        self.sb = tk.Frame(body, bg=SIDE, width=170); self.sb.pack(side="left", fill="y"); self.sb.pack_propagate(False)
+        self.pane = tk.Frame(body, bg=BG); self.pane.pack(side="left", fill="both", expand=True)
+
+        if self.user["role"] == "teacher":
+            self.sbtn("📤  Upload Marks",  lambda: self.show("upload"))
+            self.sbtn("📋  View All Marks", lambda: self.show("view"))
+            self.sbtn("🔔  Notifications",  lambda: self.show("notif"))
+            self.show("upload")
+        else:
+            self.sbtn("📊  My Results",     lambda: self.show("results"))
+            self.sbtn("🔔  Notifications",  lambda: self.show("notif"))
+            self.show("results")
+
+    def sbtn(self, txt, cmd):
+        tk.Button(self.sb, text=txt, font=("Segoe UI",10), bg=SIDE, fg=W,
+                  activebackground=ACC, relief="flat", anchor="w",
+                  padx=14, pady=9, cursor="hand2", command=cmd).pack(fill="x", pady=1)
+
+    def show(self, view):
+        for w in self.pane.winfo_children(): w.destroy()
+        {"upload": self.upload, "view": self.view_marks,
+         "results": self.results, "notif": self.notifications}[view]()
+
+    # ── TEACHER: UPLOAD ───────────────────────────────────────────────────────
+    def upload(self):
+        tk.Label(self.pane, text="Upload Marks", font=FH, bg=BG, fg=TD).pack(anchor="w", padx=20, pady=(18,2))
+
+        top = tk.Frame(self.pane, bg=BG); top.pack(anchor="w", padx=20, pady=8)
+        tk.Label(top, text="Subject:", font=FB, bg=BG, fg=TD).grid(row=0, column=0, padx=(0,6))
+        self.subj_var = tk.StringVar(value=SUBJECTS[0])
+        ttk.Combobox(top, textvariable=self.subj_var, values=SUBJECTS,
+                     state="readonly", width=16, font=FN).grid(row=0, column=1, padx=(0,12))
+        tk.Button(top, text="Load", font=FB, bg=ACC, fg=W, relief="flat",
+                  cursor="hand2", padx=10, command=self.load_table).grid(row=0, column=2)
+
+        self.tbl = tk.Frame(self.pane, bg=BG); self.tbl.pack(fill="x", padx=20)
+        self.load_table()
+
+    def load_table(self):
+        for w in self.tbl.winfo_children(): w.destroy()
+        subj = self.subj_var.get()
+
+        hdr = tk.Frame(self.tbl, bg=ACC); hdr.pack(fill="x")
+        for t, wd in [("Student",28),("Current",16),("New Marks",14),("Grade",8)]:
+            tk.Label(hdr, text=t, font=FB, bg=ACC, fg=W, width=wd, anchor="w").pack(side="left", padx=8, pady=5)
+
+        self.entries = {}
+        for i, stu in enumerate(STUDENTS):
+            cur = MARKS[stu].get(subj, 0)
+            bg = W if i % 2 == 0 else "#EBF4FA"
+            row = tk.Frame(self.tbl, bg=bg); row.pack(fill="x", pady=1)
+            tk.Label(row, text=stu,      font=FN, bg=bg, fg=TD, width=28, anchor="w").pack(side="left", padx=8, pady=6)
+            tk.Label(row, text=str(cur), font=FN, bg=bg, fg=MU, width=16, anchor="w").pack(side="left")
+            e = ttk.Entry(row, width=10, font=FN); e.insert(0, str(cur)); e.pack(side="left", padx=6)
+            gl = tk.Label(row, text=grade(cur), font=FB, bg=bg, fg=ACC, width=8); gl.pack(side="left")
+            self.entries[stu] = (e, gl)
+
+        tk.Button(self.tbl, text="💾  Save Marks", font=FB, bg="#27AE60", fg=W,
+                  relief="flat", cursor="hand2", padx=14, pady=5,
+                  command=lambda: self.save(subj)).pack(pady=12, anchor="w")
+
+    def save(self, subj):
+        bad = []
+        for stu, (e, gl) in self.entries.items():
+            v = e.get().strip()
+            if v.isdigit() and 0 <= int(v) <= 100:
+                MARKS[stu][subj] = int(v); gl.config(text=grade(int(v)))
+            else:
+                bad.append(stu)
+        if bad: messagebox.showwarning("Invalid", f"Check marks for: {', '.join(bad)}")
+        else:   messagebox.showinfo("Saved ✅", f"{subj} marks saved!")
+
+    # ── TEACHER: VIEW ALL ─────────────────────────────────────────────────────
+    def view_marks(self):
+        tk.Label(self.pane, text="All Student Marks", font=FH, bg=BG, fg=TD).pack(anchor="w", padx=20, pady=(18,10))
+        cols = ["Student"] + SUBJECTS + ["GPA"]
+        tree = ttk.Treeview(self.pane, columns=cols, show="headings", height=12)
+        for c in cols:
+            tree.heading(c, text=c)
+            tree.column(c, width=90 if c != "Student" else 150, anchor="center")
+        for stu in STUDENTS:
+            tree.insert("", "end", values=[stu] + [MARKS[stu].get(s,"—") for s in SUBJECTS] + [gpa(MARKS[stu])])
+        tree.pack(fill="x", padx=20)
+
+    # ── STUDENT: RESULTS ──────────────────────────────────────────────────────
+    def results(self):
+        name = self.user["name"]
+        tk.Label(self.pane, text="My Results", font=FH, bg=BG, fg=TD).pack(anchor="w", padx=20, pady=(18,2))
+        tk.Label(self.pane, text=f"Student: {name}", font=FN, bg=BG, fg=MU).pack(anchor="w", padx=20)
+
+        marks = MARKS.get(name, {})
+        hdr = tk.Frame(self.pane, bg=ACC); hdr.pack(fill="x", padx=20, pady=(12,0))
+        for t, w in [("Subject",26),("Marks",14),("Grade",10),("Status",12)]:
+            tk.Label(hdr, text=t, font=FB, bg=ACC, fg=W, width=w, anchor="w").pack(side="left", padx=8, pady=5)
+
+        for i, (s, m) in enumerate(marks.items()):
+            bg = W if i % 2 == 0 else "#EBF4FA"
+            ok = "Pass" if m >= 60 else "Fail"
+            fc = "#27AE60" if ok == "Pass" else "#E74C3C"
+            row = tk.Frame(self.pane, bg=bg); row.pack(fill="x", padx=20, pady=1)
+            tk.Label(row, text=s,        font=FN, bg=bg, fg=TD, width=26, anchor="w").pack(side="left", padx=8, pady=7)
+            tk.Label(row, text=str(m),   font=FB, bg=bg, fg=TD, width=14, anchor="w").pack(side="left")
+            tk.Label(row, text=grade(m), font=FB, bg=bg, fg=ACC,width=10, anchor="w").pack(side="left")
+            tk.Label(row, text=ok,       font=FB, bg=bg, fg=fc, width=12, anchor="w").pack(side="left")
+
+        foot = tk.Frame(self.pane, bg=W); foot.pack(fill="x", padx=20, pady=8)
+        tk.Label(foot, text=f"  Semester GPA:  {gpa(marks)} / 4.00",
+                 font=FH, bg=W, fg=ACC).pack(anchor="w", padx=10, pady=8)
+
+    # ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+    def notifications(self):
+        tk.Label(self.pane, text="🔔  Notifications", font=FH, bg=BG, fg=TD).pack(anchor="w", padx=20, pady=(18,8))
+        for msg in NOTIFS:
+            f = tk.Frame(self.pane, bg=W); f.pack(fill="x", padx=20, pady=4)
+            tk.Frame(f, bg=ACC, width=4).pack(side="left", fill="y")
+            tk.Label(f, text=msg, font=FN, bg=W, fg=TD, anchor="w", padx=12, pady=10).pack(side="left")
 
 
-def show_portal():
-    clear()
-
-    topbar = tk.Frame(window, bg=SURFACE)
-    topbar.pack(fill="x")
-    tk.Label(topbar, text="  EduCore Portal", font=("Segoe UI", 13, "bold"),
-             fg=PURPLE, bg=SURFACE).pack(side="left", pady=10)
-    tk.Label(topbar, text=f"  {NAME}  ", font=("Segoe UI", 11),
-             fg=GREY, bg=SURFACE).pack(side="right", pady=10)
-    tk.Button(topbar, text="Logout", command=show_login, font=("Segoe UI", 10),
-              bg=SURFACE, fg=RED, relief="flat", cursor="hand2").pack(side="right", pady=10)
-
-    main = tk.Frame(window, bg=BG)
-    main.pack(fill="both", expand=True, padx=16, pady=12)
-
-    left  = tk.Frame(main, bg=BG)
-    right = tk.Frame(main, bg=BG)
-    left.pack(side="left", fill="both", expand=True, padx=(0, 8))
-    right.pack(side="right", fill="both", expand=True, padx=(8, 0))
-
-    info_box = tk.Frame(left, bg=SURFACE, padx=16, pady=14)
-    info_box.pack(fill="x", pady=(0, 10))
-    tk.Label(info_box, text="Student Info", font=("Segoe UI", 12, "bold"),
-             fg=PURPLE, bg=SURFACE).pack(anchor="w", pady=(0, 8))
-
-    for field, value in [("Name", NAME), ("ID", STUDENT_ID), ("Course", COURSE),
-                          ("Semester", SEMESTER), ("Email", EMAIL), ("Phone", PHONE)]:
-        row = tk.Frame(info_box, bg=SURFACE)
-        row.pack(fill="x", pady=1)
-        tk.Label(row, text=f"{field}:", font=("Segoe UI", 10), fg=GREY,  bg=SURFACE).pack(side="left", padx=(0,6))
-        tk.Label(row, text=value,       font=("Segoe UI", 10), fg=WHITE, bg=SURFACE).pack(side="left")
-
-    stats_row = tk.Frame(left, bg=BG)
-    stats_row.pack(fill="x")
-    for i, (title, value, color) in enumerate([("Attendance", ATTENDANCE, GREEN),
-                                                ("Fee Status", FEE,        GREEN),
-                                                ("CGPA",       CGPA,       PURPLE)]):
-        card = tk.Frame(stats_row, bg=SURFACE, padx=12, pady=10)
-        card.grid(row=0, column=i, padx=4, sticky="ew")
-        stats_row.columnconfigure(i, weight=1)
-        tk.Label(card, text=title, font=("Segoe UI", 9),        fg=GREY,  bg=SURFACE).pack()
-        tk.Label(card, text=value, font=("Segoe UI", 16, "bold"), fg=color, bg=SURFACE).pack()
-
-    grades_box = tk.Frame(right, bg=SURFACE, padx=16, pady=14)
-    grades_box.pack(fill="both", expand=True)
-    tk.Label(grades_box, text="Subject Grades", font=("Segoe UI", 12, "bold"),
-             fg=PURPLE, bg=SURFACE).pack(anchor="w", pady=(0, 10))
-
-    header = tk.Frame(grades_box, bg=PURPLE)
-    header.pack(fill="x")
-    for col, width in [("Subject", 22), ("Score", 8), ("Grade", 7)]:
-        tk.Label(header, text=col, font=("Segoe UI", 10, "bold"), fg="white",
-                 bg=PURPLE, width=width, anchor="w", padx=6, pady=5).pack(side="left")
-
-    for i, (subject, score, grade) in enumerate(SUBJECTS):
-        row_bg = BG if i % 2 == 0 else SURFACE
-        row = tk.Frame(grades_box, bg=row_bg)
-        row.pack(fill="x")
-        tk.Label(row, text=subject, font=("Segoe UI", 10), fg=WHITE,  bg=row_bg, width=22, anchor="w", padx=6, pady=5).pack(side="left")
-        tk.Label(row, text=score,   font=("Segoe UI", 10), fg=GREEN,  bg=row_bg, width=8,  anchor="w", padx=6).pack(side="left")
-        tk.Label(row, text=grade,   font=("Segoe UI", 10, "bold"), fg=PURPLE, bg=row_bg, width=7, anchor="w", padx=6).pack(side="left")
-
-    notice = tk.Frame(right, bg="#2a2a1e", padx=12, pady=8)
-    notice.pack(fill="x", pady=(10, 0))
-    tk.Label(notice, text="📢  Mid-term exams start April 5th. Check your schedule.",
-             font=("Segoe UI", 10), fg=YELLOW, bg="#2a2a1e").pack(anchor="w")
-
-
-show_login()
-window.mainloop()
+App().mainloop()
